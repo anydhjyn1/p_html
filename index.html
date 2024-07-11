@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写真アップロード</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        #preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>写真アップロード</h1>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <button onclick="uploadPhotos()">アップロード</button>
+    <div id="preview"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+
+        fileInput.addEventListener('change', function(e) {
+            preview.innerHTML = '';
+            for (let file of this.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function uploadPhotos() {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                alert('写真を選択してください');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('photos[]', files[i]);
+            }
+
+            // ここでサーバーにデータを送信します
+            // 実際のAPIエンドポイントに合わせて変更してください
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('アップロード成功！');
+                // 成功時の処理
+            })
+            .catch(error => {
+                alert('アップロードに失敗しました');
+                // エラー時の処理
+            });
+        }
+    </script>
+</body>
+</html>
